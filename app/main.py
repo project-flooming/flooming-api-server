@@ -1,7 +1,7 @@
 import uvicorn
-from fastapi import FastAPI, Depends, UploadFile
-from database import SessionLocal, engine
-import models
+from fastapi import FastAPI, UploadFile
+from app.database import SessionLocal, engine
+from app import models
 
 # 데이터베이스 스키마 생성
 models.Base.metadata.create_all(bind=engine)

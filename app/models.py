@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import DateTime
 from sqlalchemy import Column, Integer, String
-from database import Base
+from app.database import Base
 
 '''
 fastAPI 공식문서에서 발췌
