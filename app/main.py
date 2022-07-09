@@ -1,15 +1,20 @@
 import os.path
 
 import uvicorn
-from fastapi import FastAPI, UploadFile, Depends
+from fastapi import FastAPI, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from loguru import logger
 
 from app.database import SessionLocal, engine
 from app import models
 from app.models import Picture, Photo
-from app.schemas import RequestPhoto, ResponsePicture
+from app.schemas import ResponsePicture, ResponsePhoto
 import uuid
+import logging
 
 # 데이터베이스 스키마 생성
 models.Base.metadata.create_all(bind=engine)
@@ -26,23 +31,35 @@ def get_db():
         db.close()
 
 
-@app.get("/")
-async def root():
-    return {"안녕하세요": "꽃분이 입니다."}
+# 미들웨어를 통한 통합 로깅 및 예외처리
+@app.middleware("http")
+async def request_middleware(request: Request, call_next):
+    logger.info("Request start")
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logger.warning(f"Request failed: {e}")
+        return JSONResponse(content={"error": e}, status_code=400)
+    finally:
+        logger.info("Request end")
 
 
 # 사진 업로드
 @app.post("/photo")
 async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
-    UPLOAD_DIR = "C:\dev"
+    # 서버 로컬 스토리지에 이미지 저장
+    UPLOAD_DIR = "./photo"
 
     content = await file.read()
-    filename = f"{str(uuid.uuid4())}.png"
+    logging.info(f"original filename = {file.filename}")
+    filename = f"{str(uuid.uuid4())}.jpg"
     with open(os.path.join(UPLOAD_DIR, filename), "wb") as fp:
         fp.write(content)
     src = f"{UPLOAD_DIR}/{filename}"
 
-    # 꽃 사진
+    # 디비에 저장
+    db.add(Photo(title=filename, src=src))
+    db.commit()
     return {"filename": filename, "src": src}
 
 
@@ -74,7 +91,7 @@ async def get_all_gallery(db: Session = Depends(get_db)):
 
 @app.get("/test")
 async def test():
-    print("요청이 와써용")
+    raise HTTPException(status_code=404, detail="오류")
     return {"테스트": "입니다"}
 
 
