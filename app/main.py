@@ -15,6 +15,8 @@ from app.models import Picture, Photo
 from app.schemas import ResponsePicture, ResponsePhoto
 import uuid
 import logging
+from deep_learning.inference import classify, Inference
+import time
 
 # 데이터베이스 스키마 생성
 models.Base.metadata.create_all(bind=engine)
@@ -57,8 +59,12 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
         fp.write(content)
     src = f"{UPLOAD_DIR}/{filename}"
 
+    # 꽃 분류
+    flower_type = classify(src)
+    logger.info(f"flower type = {flower_type}")
+
     # 디비에 저장
-    db.add(Photo(filename=filename, src=src))
+    db.add(Photo(filename=filename, src=src, type=flower_type))
     db.commit()
 
     return db.query(Photo).filter_by(filename=filename).first()
