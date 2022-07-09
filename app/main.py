@@ -39,7 +39,7 @@ async def request_middleware(request: Request, call_next):
         return await call_next(request)
     except Exception as e:
         logger.warning(f"Request failed: {e}")
-        return JSONResponse(content={"error": e}, status_code=400)
+        return JSONResponse(content={"error": str(e)}, status_code=400)
     finally:
         logger.info("Request end")
 
@@ -58,9 +58,16 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     src = f"{UPLOAD_DIR}/{filename}"
 
     # 디비에 저장
-    db.add(Photo(title=filename, src=src))
+    db.add(Photo(filename=filename, src=src))
     db.commit()
-    return {"filename": filename, "src": src}
+
+    return db.query(Photo).filter_by(filename=filename).first()
+
+
+# 사진 가져오기
+@app.get("/photo/{photo_id}")
+async def get_photo_by_id(photo_id, db: Session = Depends(get_db)):
+    return db.query(Photo).filter_by(photo_id=photo_id).first()
 
 
 # 사진 -> 그림 변환
@@ -87,12 +94,6 @@ async def download_picture():
 async def get_all_gallery(db: Session = Depends(get_db)):
     result = db.query(Picture).all()
     return result
-
-
-@app.get("/test")
-async def test():
-    raise HTTPException(status_code=404, detail="오류")
-    return {"테스트": "입니다"}
 
 
 if __name__ == "__main__":
