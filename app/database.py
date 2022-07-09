@@ -1,16 +1,16 @@
-import boto3
-from loguru import logger
-from config import DDB
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
+from config import DB
 
-def dynamo_db():
-    try:
-        dynamodb = boto3.resource("dynamodb",
-                                  region_name="ap-northeast-2",
-                                  aws_access_key_id=f"{DDB['access_key']}",
-                                  aws_secret_access_key=f"{DDB['secret_key']}")
-    except Exception as e:
-        logger.error(f"ddb is not connected : {str(e)}")
-    else:
-        logger.info("dynamoDB is connected")
-        return dynamodb.Table("flooming")
+SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB['user']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['database']}?charset=utf8"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, encoding="utf-8"
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+

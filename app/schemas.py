@@ -6,10 +6,13 @@ fastAPI 공식문서에서 발췌
 '''
 
 
-class RequestPhoto(BaseModel):
+class ResponsePhoto(BaseModel):
     id: int
     title: str
     src: str
+
+    class Config:
+        orm_mode = True
 
 
 # 그려진 그림과 사진을 갤러리에 업로드

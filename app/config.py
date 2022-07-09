@@ -4,4 +4,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_FILE = os.path.join(BASE_DIR, "../secrets.json")
 secrets = json.loads(open(SECRET_FILE).read())
-DDB = secrets["DDB"]
+
+DB = secrets["DB"]
+S3 = secrets["S3"]
+
