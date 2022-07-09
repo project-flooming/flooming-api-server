@@ -13,6 +13,7 @@ class Photo(Base):
     __tablename__ = "photo"
 
     id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255))
     src = Column(String(255))  # 이미지 저장 경로
     created_time = Column(DateTime, default=datetime.now)
 
