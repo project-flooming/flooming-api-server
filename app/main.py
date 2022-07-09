@@ -1,54 +1,49 @@
 import os.path
-from datetime import datetime
 
 import uvicorn
-from fastapi import FastAPI, UploadFile, HTTPException
-from fastapi import Request
-from fastapi.responses import JSONResponse
-from loguru import logger
+from fastapi import FastAPI, UploadFile, Depends
+from sqlalchemy.orm import Session
+from typing import List
 
+from app.database import SessionLocal, engine
+from app import models
+from app.models import Picture, Photo
+from app.schemas import RequestPhoto, ResponsePicture
 import uuid
-from app.database import dynamo_db
+
+# 데이터베이스 스키마 생성
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
-# 미들웨어를 통한 통합 로깅 및 예외처리
-@app.middleware("http")
-async def request_middleware(request: Request, call_next):
-    logger.info("Request start")
+# Database Dependency
+def get_db():
+    db = SessionLocal()
     try:
-        return await call_next(request)
-    except Exception as e:
-        logger.warning(f"Request failed: {e}")
-        return JSONResponse(content={"error": str(e)}, status_code=400)
+        yield db
     finally:
-        logger.info("Request end")
+        db.close()
+
+
+@app.get("/")
+async def root():
+    return {"안녕하세요": "꽃분이 입니다."}
 
 
 # 사진 업로드
 @app.post("/photo")
-async def upload_photo(file: UploadFile):
-    # 서버 로컬 스토리지에 이미지 저장
-    UPLOAD_DIR = "./photo"
+async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
+    UPLOAD_DIR = "C:\dev"
 
     content = await file.read()
-    logger.info(f"original filename = {file.filename}")
-    filename = f"{str(uuid.uuid4())}.jpg"
+    filename = f"{str(uuid.uuid4())}.png"
     with open(os.path.join(UPLOAD_DIR, filename), "wb") as fp:
         fp.write(content)
     src = f"{UPLOAD_DIR}/{filename}"
 
-    # 디비에 저장
-    data = {"filename": filename, "src": src, "created_time": str(datetime.now())}
-    dynamo_db().put_item(Item=data)
-    return data
-
-
-# 사진 가져오기
-@app.get("/photo/{filename}")
-async def get_photo(filename: str):
-    return dynamo_db().get_item(Key={"filename": filename})["Item"]
+    # 꽃 사진
+    return {"filename": filename, "src": src}
 
 
 # 사진 -> 그림 변환
@@ -71,9 +66,16 @@ async def download_picture():
 
 
 # 갤러리 - 사진/그림 리스트 반환
-@app.get("/gallery")
-async def get_all_gallery():
-    return True
+@app.get("/gallery", response_model=List[ResponsePicture])
+async def get_all_gallery(db: Session = Depends(get_db)):
+    result = db.query(Picture).all()
+    return result
+
+
+@app.get("/test")
+async def test():
+    print("요청이 와써용")
+    return {"테스트": "입니다"}
 
 
 if __name__ == "__main__":
