@@ -1,25 +1,21 @@
 import os.path
 
 import uvicorn
-from fastapi import FastAPI, UploadFile, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, Depends
 from sqlalchemy.orm import Session
-from typing import List
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from app.database import SessionLocal, engine
-from app import models
-from app.models import Picture, Photo
-from app.schemas import ResponsePicture, ResponsePhoto
+from database.config import SessionLocal, engine, Base
+from database.models import Picture, Photo
 import uuid
 import logging
-from deep_learning.inference import classify, Inference
-import time
+from ai.inference import classify
 
 # 데이터베이스 스키마 생성
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -31,6 +27,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# 디비 init
+@app.on_event("startup")
+async def init(db: Session = Depends(get_db)):
+    return True
 
 
 # 미들웨어를 통한 통합 로깅 및 예외처리
@@ -96,7 +98,7 @@ async def download_picture():
 
 
 # 갤러리 - 사진/그림 리스트 반환
-@app.get("/gallery", response_model=List[ResponsePicture])
+@app.get("/gallery")
 async def get_all_gallery(db: Session = Depends(get_db)):
     result = db.query(Picture).all()
     return result

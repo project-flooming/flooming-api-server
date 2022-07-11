@@ -1,12 +1,16 @@
 from datetime import datetime
 from sqlalchemy import DateTime
 from sqlalchemy import Column, Integer, String
-from app.database import Base
+from database.config import Base
 
-'''
-fastAPI 공식문서에서 발췌
-SQLAlchemy는 데이터베이스 스키마를 models로 부름
-'''
+
+class Flower(Base):
+    __tablename__ = "flower"
+
+    flower_id = Column(Integer, primary_key=True)
+    kor_name = Column(String(255), default="unknown")
+    eng_name = Column(String(255), default="unknown")
+    flower_language = Column(String(255), default="unknown")  # 꽃말
 
 
 class Photo(Base):
