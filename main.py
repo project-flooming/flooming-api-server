@@ -103,6 +103,9 @@ async def get_all_gallery(db: Session = Depends(get_db)):
     result = db.query(Picture).all()
     return result
 
+@app.get("/test")
+async def test():
+    return {"test" : "success"}
 
 if __name__ == "__main__":
     uvicorn.run(app)
