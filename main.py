@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 
 from database.config import SessionLocal, engine, Base
-from database.models import Picture, Photo
+from database.models import Picture, Photo, Flower
 import uuid
 import logging
 from ai.inference import classify
@@ -48,7 +48,7 @@ async def request_middleware(request: Request, call_next):
         logger.info("Request end")
 
 
-# 사진 업로드
+# 사진 업로드 후 꽃 분류
 @app.post("/photo")
 async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     # 서버 로컬 스토리지에 이미지 저장
@@ -61,15 +61,28 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
         fp.write(content)
     src = f"{UPLOAD_DIR}/{filename}"
 
-    # 꽃 분류
-    flower_type = classify(src)
-    logger.info(f"flower type = {flower_type}")
-
     # 디비에 저장
-    db.add(Photo(filename=filename, src=src, type=flower_type))
+    db.add(Photo(filename=filename, src=src))
     db.commit()
 
-    return db.query(Photo).filter_by(filename=filename).first()
+    # 꽃 분류
+    result_response = []
+    for result in classify(src):
+        flower: Flower = db.query(Flower).filter_by(kor_name=result["type"]).first()
+        data = {
+            "probability": result["probability"],
+            "kor_name": flower.kor_name,
+            "eng_name": flower.eng_name,
+            "flower_language": flower.flower_language
+        }
+        result_response.append(data)
+
+    logger.info(f"classify results = {result_response}")
+
+    saved_data: Photo = db.query(Photo).filter_by(filename=filename).first()
+    return {"result": result_response}
+
+
 
 
 # 사진 가져오기
