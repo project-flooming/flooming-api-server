@@ -1,7 +1,7 @@
 import os.path
 
 import uvicorn
-from fastapi import FastAPI, UploadFile, Depends
+from fastapi import FastAPI, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from fastapi import Request
@@ -74,20 +74,40 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_photo)
 
-    # # 꽃 분류
+    # 꽃 분류
     result_response = []
-    for result in classify(src):
+    classify_result = classify(src)
+
+    prob = [result["probability"] for result in classify_result]
+    gap1 = abs(prob[0] - prob[1])
+    gap2 = abs(prob[1] - prob[2])
+    gap3 = abs(prob[0] - prob[2])
+    if gap1 <= 1 and gap2 <= 1 and gap3 <= 1:
+        return {"result": "anomaly"}
+
+    logger.info("분류 결과 = {}", classify_result)
+    for result in classify_result:
         flower: Flower = db.query(Flower).filter_by(kor_name=result["type"]).first()
+        if flower is None:
+            continue
         data = {
             "probability": result["probability"],
             "kor_name": flower.kor_name,
             "eng_name": flower.eng_name,
-            "flower_language": flower.flower_language
+            "flower_language": flower.flower_language,
+            "img_src": flower.img_src
         }
         result_response.append(data)
 
-    logger.info(f"classify results = {result_response}")
     return {"result": result_response}
+
+
+# 사진 타입 변경 (사용자가 사진 최종 선택)
+@app.put("/photo/{photo_id}/{flower_type}")
+async def update_photo_type(photo_id: int, flower_type: str, db: Session = Depends(get_db)):
+    db.query(Photo).filter_by(photo_id=photo_id).update({"type": flower_type})
+    db.commit()
+    return db.query(Photo).filter_by(photo_id=photo_id).first()
 
 
 # 사진 가져오기

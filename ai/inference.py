@@ -66,10 +66,10 @@ class Inference:
         for i in range(1, 4):
             prob = prob_with_idx[0][0][-3:][-i].item()
             idx = prob_with_idx[1][0][-3:][-i].item()
-            prob = f"{int((prob / total) * 100)}%"
+            prob = int((prob / total) * 100)
             output = {
-                'probability': prob,
-                'type': self.classes[idx]
+                "probability": prob,
+                "type": self.classes[idx]
             }
             result.append(output)
         return result
