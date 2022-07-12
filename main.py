@@ -13,6 +13,7 @@ from database.models import Picture, Photo, Flower
 import uuid
 import logging
 from ai.inference import classify
+from database.flowers import flower_list
 
 # 데이터베이스 스키마 생성
 Base.metadata.create_all(bind=engine)
@@ -29,10 +30,16 @@ def get_db():
         db.close()
 
 
-# 디비 init
+# 분류용 꽃 세팅
 @app.on_event("startup")
-async def init(db: Session = Depends(get_db)):
-    return True
+async def init():
+    db: Session = SessionLocal()
+    for flower in flower_list:
+        if db.query(Flower).filter_by(kor_name=flower.kor_name).first() is None:
+            db.add(flower)
+            logger.info("분류용 꽃 데이터 세팅 = {}", flower.kor_name)
+    db.commit()
+    db.close()
 
 
 # 미들웨어를 통한 통합 로깅 및 예외처리
@@ -62,10 +69,12 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     src = f"{UPLOAD_DIR}/{filename}"
 
     # 디비에 저장
-    db.add(Photo(filename=filename, src=src))
+    db_photo = Photo(filename=filename, src=src)
+    db.add(db_photo)
     db.commit()
+    db.refresh(db_photo)
 
-    # 꽃 분류
+    # # 꽃 분류
     result_response = []
     for result in classify(src):
         flower: Flower = db.query(Flower).filter_by(kor_name=result["type"]).first()
@@ -78,11 +87,7 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
         result_response.append(data)
 
     logger.info(f"classify results = {result_response}")
-
-    saved_data: Photo = db.query(Photo).filter_by(filename=filename).first()
     return {"result": result_response}
-
-
 
 
 # 사진 가져오기

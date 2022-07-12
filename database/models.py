@@ -11,6 +11,7 @@ class Flower(Base):
     kor_name = Column(String(255), default="unknown")
     eng_name = Column(String(255), default="unknown")
     flower_language = Column(String(255), default="unknown")  # 꽃말
+    img_src = Column(String(255), default="unknown")
 
 
 class Photo(Base):
