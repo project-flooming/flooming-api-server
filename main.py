@@ -1,12 +1,13 @@
 import os.path
 
 import uvicorn
-from fastapi import FastAPI, UploadFile, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, Depends
 from sqlalchemy.orm import Session
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from loguru import logger
+from starlette.responses import FileResponse
 
 from database.config import SessionLocal, engine, Base
 from database.models import Picture, Photo, Flower
@@ -117,21 +118,28 @@ async def get_photo_by_id(photo_id, db: Session = Depends(get_db)):
 
 
 # 사진 -> 그림 변환
-@app.get("/picture/{filename}")
-async def create_picture(filename):
+@app.post("/picture/{photo_id}")
+async def create_picture(photo_id: int):
     # 그림 변환
     return True
 
 
 # 사진 다운로드
-@app.get("/download/photo")
-async def download_photo():
-    return True
+@app.get("/download/photo/{photo_id}")
+async def download_photo(photo_id: int, db: Session = Depends(get_db)):
+    find_photo: Photo = db.query(Photo).filter_by(photo_id=photo_id).first()
+    return FileResponse(find_photo.src)
 
 
 # 그림 다운로드
 @app.get("/download/picture")
 async def download_picture():
+    return True
+
+
+# 갤러리 - 사진/그림 업로드
+@app.post("/gallery")
+async def create_gallery(db: Session = Depends(get_db)):
     return True
 
 
@@ -141,9 +149,11 @@ async def get_all_gallery(db: Session = Depends(get_db)):
     result = db.query(Picture).all()
     return result
 
-@app.get("/test")
-async def test():
-    return {"test" : "success"}
+
+@app.get("/")
+async def welcome_page():
+    return "안녕하세요. Flooming REST API 서버입니다."
+
 
 if __name__ == "__main__":
     uvicorn.run(app)
