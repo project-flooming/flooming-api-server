@@ -17,7 +17,7 @@ class Flower(Base):
 class Photo(Base):
     __tablename__ = "photo"
 
-    photo_id = Column(Integer, primary_key=True)
+    photo_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     filename = Column(String(255), default="unknown")
     type = Column(String(255), default="unknown")
     src = Column(String(255), default="unknown")  # 이미지 저장 경로
@@ -27,9 +27,16 @@ class Photo(Base):
 class Picture(Base):
     __tablename__ = "picture"
 
-    picture_id = Column(Integer, primary_key=True)
-    pic_src = Column(String(255), default="unknown")  # 실제 사진 저장 경로
-    photo_src = Column(String(255), default="unknown")  # 그려진 그림 저장 경로
-    comment = Column(String(255), default="unknown")
+    picture_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    src = Column(String(255), default="unknown")  # 그려진 그림 저장 경로
     created_time = Column(DateTime, default=datetime.now)
 
+
+class Gallery(Base):
+    __tablename__ = "gallery"
+
+    gallery_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    photo_src = Column(String(255), default="unknown")
+    picture_src = Column(String(255), default="unknown")
+    comment = Column(String(255), default="unknown")
+    created_time = Column(DateTime, default=datetime.now)
