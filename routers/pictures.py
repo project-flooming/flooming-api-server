@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from database.config import get_db
@@ -25,9 +26,10 @@ async def create_gallery(form: GalleryRequest, db: Session = Depends(get_db)):
 
 # 갤러리 - 사진/그림 리스트 반환
 @router.get("/gallery")
-async def get_all_gallery(db: Session = Depends(get_db)):
-    result = db.query(Gallery).all()
-    return result
+async def get_all_gallery(page: int, db: Session = Depends(get_db)):
+    unit_per_page = 5
+    offset = page * unit_per_page
+    return db.query(Gallery).order_by(desc(Gallery.created_time)).offset(offset).limit(unit_per_page).all()
 
 
 # 그림 다운로드
