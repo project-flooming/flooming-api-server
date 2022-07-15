@@ -2,6 +2,7 @@ import cv2
 
 import torch
 import torch.nn.functional as F
+from fastapi import HTTPException
 
 from ai.model.classification_model import VGG19
 from ai.model.generation_model import Generator
@@ -92,8 +93,11 @@ c_weight_path = './ai/weight/classification_model.pt'
 c_inference = Inference(c_weight=c_weight_path)
 
 
-def classify(image_src):
-    return c_inference.classification(image_src)
+async def classify(image_src):
+    try:
+        return c_inference.classification(image_src)
+    except Exception:
+        raise HTTPException(status_code=400, detail="꽃 사진 분류 오류")
 
 
 # g_weight_path = './ai/weight/generation_model.pt'

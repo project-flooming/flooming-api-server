@@ -1,3 +1,4 @@
+import time
 
 import uvicorn
 from fastapi import FastAPI
@@ -38,8 +39,13 @@ async def init():
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
     logger.info("Request start")
+    # logger.info("headers = {}", request.headers)
     try:
-        return await call_next(request)
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logger.info("Request Processing Time: {}s", round(process_time, 2))
+        return response
     except Exception as e:
         logger.warning(f"Request failed: {e}")
         return JSONResponse(content={"error": str(e)}, status_code=400)
