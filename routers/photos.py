@@ -1,4 +1,6 @@
+import datetime
 import os
+import random
 import uuid
 
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
@@ -14,16 +16,19 @@ from loguru import logger
 router = APIRouter()
 
 
-async def check_anomaly(classify_result):
-    prob = [result["probability"] for result in classify_result]
-    gap1 = abs(prob[0] - prob[1])
-    gap2 = abs(prob[1] - prob[2])
-    gap3 = abs(prob[0] - prob[2])
-    if gap1 <= 1 and gap2 <= 1 and gap3 <= 1:
-        raise HTTPException(status_code=400, detail="업로드한 사진이 꽃이 아닙니다.")
+async def validate(classify_result, src):
+    prob_list = [result["probability"] for result in classify_result]
+    max_prob = max(prob_list)
+    if max_prob >= 95:
+        return [classify_result[0]]
+    elif max_prob <= 75:
+        await delete_photo(src)
+        raise HTTPException(status_code=400, detail="꽃 데이터베이스에 존재하지 않는 꽃 이거나 꽃 사진이 아닙니다.")
+
+    return classify_result
 
 
-async def make_response_list(classify_result, db):
+def make_response_list(classify_result, db):
     result_response = []
     for result in classify_result:
         flower: Flower = db.query(Flower).filter_by(kor_name=result["type"]).first()
@@ -45,13 +50,18 @@ async def upload(file):
         UPLOAD_DIR = "./photo"
         content = await file.read()
         logger.info(f"original filename = {file.filename}")
-        filename = f"{str(uuid.uuid4())}.jpg"
+        filename = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{random.randint(0, 1000)}.jpg"
         with open(os.path.join(UPLOAD_DIR, filename), "wb") as fp:
             fp.write(content)
         src = f"{UPLOAD_DIR}/{filename}"
         return filename, src
-    except Exception:
+    except Exception as e:
+        logger.warning(e)
         raise HTTPException(status_code=400, detail="꽃 사진 업로드 오류")
+
+
+async def delete_photo(src):
+    os.remove(src)
 
 
 # 사진 업로드 후 꽃 분류
@@ -60,21 +70,20 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     # 서버 로컬 스토리지에 이미지 저장
     filename, src = await upload(file)
 
+    # 꽃 분류
+    classify_result = classify(src)
+    logger.info("Classify Result = {}", classify_result)
+
+    # 잘못된 사진 거르기
+    result = await validate(classify_result, src)
+
     # 디비에 저장
     db_photo = Photo(filename=filename, src=src)
     db.add(db_photo)
     db.commit()
     db.refresh(db_photo)
 
-    # 꽃 분류
-    classify_result = await classify(src)
-
-    # 잘못된 사진 거르기
-    await check_anomaly(classify_result)
-
-    logger.info("분류 결과 = {}", classify_result)
-
-    return {"result": await make_response_list(classify_result, db), "photo_id": db_photo.photo_id}
+    return {"result": make_response_list(result, db), "photo_id": db_photo.photo_id}
 
 
 # 사진 다운로드
