@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse, FileResponse
 
 from database.config import get_db
 from database.models import Picture, Gallery, Photo
-from database.schemas import GalleryRequest, GalleryResponse, PictureRequest
+from database.schemas import GalleryRequest, PictureRequest, GalleryResponse
 from loguru import logger
 
 router = APIRouter()
@@ -20,7 +20,7 @@ async def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
 
         # 그림 변환
         # 그림 디비 저장
-        db_picture: Picture = Picture(src="unknown")
+        db_picture: Picture = Picture(src="./picture/test.jpg")
         db.add(db_picture)
         db.commit()
         db.refresh(db_picture)
@@ -67,10 +67,18 @@ async def get_all_gallery(page: int, db: Session = Depends(get_db)):
     return {"result": await paging(db, page)}
 
 
+@router.get("/picture/{picture_id}")
+async def get_picture(picture_id: int, db: Session = Depends(get_db)):
+    find_picture: Picture = db.query(Picture).filter_by(picture_id=picture_id).first()
+    if find_picture is None:
+        raise HTTPException(status_code=400, detail="그림 조회 실패 : 해당 사진을 찾을 수 없습니다.")
+    return FileResponse(find_picture.src)
+
+
 # 그림 다운로드
 @router.get("/download/picture/{picture_id}")
 async def download_picture(picture_id: int, db: Session = Depends(get_db)):
-    find_picture: Picture = db.query(Photo).filter_by(picture_id=picture_id).first()
+    find_picture: Picture = db.query(Picture).filter_by(picture_id=picture_id).first()
     if find_picture is None:
         raise HTTPException(status_code=400, detail="그림 다운로드 실패 : 해당 사진을 찾을 수 없습니다.")
     return FileResponse(find_picture.src)
