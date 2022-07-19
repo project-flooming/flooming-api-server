@@ -20,29 +20,38 @@ async def validate(classify_result, src):
     prob_list = [result["probability"] for result in classify_result]
     max_prob = max(prob_list)
     if max_prob >= 95:
-        return [classify_result[0]]
+        return classify_result[0]
     elif max_prob <= 75:
         await delete_photo(src)
-        raise HTTPException(status_code=400, detail="꽃 데이터베이스에 존재하지 않는 꽃 이거나 꽃 사진이 아닙니다.")
-
-    return classify_result
+        raise HTTPException(status_code=400, detail="알아볼 수 없는 사진이에요. 다시 사진을 올려주세요.")
 
 
-def make_response_list(classify_result, db):
-    result_response = []
-    for result in classify_result:
-        flower: Flower = db.query(Flower).filter_by(kor_name=result["type"]).first()
-        if flower is None:
-            continue
-        data = {
-            "probability": result["probability"],
-            "kor_name": flower.kor_name,
-            "eng_name": flower.eng_name,
-            "flower_language": flower.flower_language,
-            "img_src": flower.img_src
-        }
-        result_response.append(data)
-    return result_response
+# def make_response_list(classify_result, db):
+#     result_response = []
+#     for result in classify_result:
+#         flower: Flower = db.query(Flower).filter_by(kor_name=result["type"]).first()
+#         if flower is None:
+#             continue
+#         data = {
+#             "probability": result["probability"],
+#             "kor_name": flower.kor_name,
+#             "eng_name": flower.eng_name,
+#             "flower_language": flower.flower_language,
+#             "img_src": flower.img_src
+#         }
+#         result_response.append(data)
+#     return result_response
+
+def make_response(classify_result, db):
+    print(classify_result)
+    flower: Flower = db.query(Flower).filter_by(kor_name=classify_result[0]["type"]).first()
+    return {
+        "probability": classify_result[0]["probability"],
+        "kor_name": flower.kor_name,
+        "eng_name": flower.eng_name,
+        "flower_language": flower.flower_language,
+        "img_src": flower.img_src
+    }
 
 
 async def upload(file):
@@ -83,7 +92,17 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_photo)
 
-    return {"result": make_response_list(result, db), "photo_id": db_photo.photo_id}
+    # return {"result": make_response_list(result, db), "photo_id": db_photo.photo_id}
+    flower: Flower = db.query(Flower).filter_by(kor_name=classify_result[0]["type"]).first()
+
+    return {
+        "photo_id": db_photo.photo_id,
+        "probability": result["probability"],
+        "kor_name": flower.kor_name,
+        "eng_name": flower.eng_name,
+        "flower_language": flower.flower_language,
+        "img_src": flower.img_src
+    }
 
 
 # 사진 다운로드
