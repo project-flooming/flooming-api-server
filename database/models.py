@@ -11,7 +11,6 @@ class Flower(Base):
     kor_name = Column(String(255), default="unknown")
     eng_name = Column(String(255), default="unknown")
     flower_language = Column(String(255), default="unknown")  # 꽃말
-    img_src = Column(String(255), default="unknown")
 
 
 class Photo(Base):
@@ -36,7 +35,7 @@ class Gallery(Base):
     __tablename__ = "gallery"
 
     gallery_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    photo_src = Column(String(255), default="unknown")
-    picture_src = Column(String(255), default="unknown")
+    photo_id = Column(Integer, default=0)
+    picture_id = Column(Integer, default=0)
     comment = Column(String(255), default="unknown")
     created_time = Column(DateTime, default=datetime.now)

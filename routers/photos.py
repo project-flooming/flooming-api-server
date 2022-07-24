@@ -1,6 +1,7 @@
 import datetime
 import os
 import random
+import time
 
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -18,11 +19,12 @@ router = APIRouter()
 async def validate(classify_result, src):
     prob_list = [result["probability"] for result in classify_result]
     max_prob = max(prob_list)
-    if max_prob >= 95:
+    if max_prob >= 90:
         return classify_result[0]
-    elif max_prob <= 75:
+    elif max_prob <= 50:
         await delete_photo(src)
         raise HTTPException(status_code=400, detail="알아볼 수 없는 사진이에요. 다시 사진을 올려주세요.")
+    return classify_result[0]
 
 
 async def upload(file):
@@ -58,13 +60,11 @@ async def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     result = await validate(classify_result, src)
 
     # 디비에 저장
-    db_photo = Photo(filename=filename, src=src)
+    flower: Flower = db.query(Flower).filter_by(kor_name=classify_result[0]["type"]).first()
+    db_photo = Photo(filename=filename, src=src, type=flower.kor_name)
     db.add(db_photo)
     db.commit()
     db.refresh(db_photo)
-
-    # return {"result": make_response_list(result, db), "photo_id": db_photo.photo_id}
-    flower: Flower = db.query(Flower).filter_by(kor_name=classify_result[0]["type"]).first()
 
     return {
         "photo_id": db_photo.photo_id,
