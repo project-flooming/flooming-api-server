@@ -27,6 +27,7 @@ class Picture(Base):
     __tablename__ = "picture"
 
     picture_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    photo_id = Column(Integer)
     src = Column(String(255), default="unknown")  # 그려진 그림 저장 경로
     created_time = Column(DateTime, default=datetime.now)
 

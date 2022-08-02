@@ -3,7 +3,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
-from ai.inference import generate
+from ai.inference import drawing
 from database.config import get_db
 from database.models import Picture, Gallery, Photo
 from database.schemas import GalleryDto, PictureRequest
@@ -19,10 +19,11 @@ async def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
         src = db.query(Photo).filter_by(photo_id=form.photo_id).first().src
 
         # 그림 변환
-        generate(src)
+        await drawing(src)
 
         # 그림 디비 저장
-        db_picture: Picture = Picture(src=src)
+        picture_save_path = "./picture/" + src.split('/')[-1]
+        db_picture: Picture = Picture(src=picture_save_path, photo_id=form.photo_id)
         db.add(db_picture)
         db.commit()
         db.refresh(db_picture)
