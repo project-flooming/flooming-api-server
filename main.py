@@ -39,7 +39,7 @@ async def init():
 @app.middleware("http")
 async def request_middleware(request: Request, call_next):
     logger.info("Request start")
-    logger.info("headers = {}", request.headers)
+    # logger.info("headers = {}", request.headers)
     try:
         start_time = time.time()
         response = await call_next(request)

@@ -93,9 +93,9 @@ class Inference:
         return result
 
     @torch.no_grad()
-    def transform(self, src):
+    def style_convert(self, src):
         file_name = src.split('/')[-1]
-        inputs = Variable(self.transform(Image.open(src)))
+        inputs = Variable(self.transform(Image.open(src).convert('RGB')))
         inputs = inputs.unsqueeze(0)
         output = denormalize(self.styletransfer_model(inputs))
         output = to_pil_image(output[0])
@@ -116,4 +116,4 @@ s_inference = Inference(s_weight=s_weight_path)
 
 
 async def drawing(image_src):
-    return s_inference.transform(image_src)
+    return s_inference.style_convert(image_src)
