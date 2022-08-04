@@ -34,7 +34,7 @@ async def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
         }
     except Exception as e:
         logger.warning(f"Drawing error : {str(e)}")
-        raise HTTPException(status_code=400, detail="그림 그리는데 오류가 발생 했습니다.")
+        raise HTTPException(status_code=400, detail="그림을 그릴 수 없어요 !")
 
 
 async def paging(db, page):
@@ -66,13 +66,4 @@ async def get_picture(picture_id: int, db: Session = Depends(get_db)):
     find_picture: Picture = db.query(Picture).filter_by(picture_id=picture_id).first()
     if find_picture is None:
         raise HTTPException(status_code=400, detail="그림 조회 실패 : 해당 사진을 찾을 수 없습니다.")
-    return FileResponse(find_picture.src)
-
-
-# 그림 다운로드
-@router.get("/download/picture/{picture_id}")
-async def download_picture(picture_id: int, db: Session = Depends(get_db)):
-    find_picture: Picture = db.query(Picture).filter_by(picture_id=picture_id).first()
-    if find_picture is None:
-        raise HTTPException(status_code=400, detail="그림 다운로드 실패 : 해당 사진을 찾을 수 없습니다.")
     return FileResponse(find_picture.src)

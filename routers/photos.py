@@ -1,7 +1,6 @@
 import datetime
 import os
 import random
-import time
 
 from fastapi import APIRouter, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -23,7 +22,7 @@ async def validate(classify_result, src):
         return classify_result[0]
     elif max_prob <= 50:
         await delete_photo(src)
-        raise HTTPException(status_code=400, detail="알아볼 수 없는 사진이에요. 다시 사진을 올려주세요.")
+        raise HTTPException(status_code=400, detail="알아볼 수 없는 사진이에요!")
     return classify_result[0]
 
 
@@ -38,8 +37,8 @@ async def upload(file):
         src = f"{UPLOAD_DIR}/{filename}"
         return filename, src
     except Exception as e:
-        logger.warning(e)
-        raise HTTPException(status_code=400, detail="꽃 사진 업로드 오류")
+        logger.warning(f"photo upload fail = {str(e)}")
+        raise HTTPException(status_code=500, detail="서버에 문제가 생긴 것 같아요!")
 
 
 async def delete_photo(src):
@@ -82,18 +81,10 @@ async def get_basic_flower_img(filename: str):
     return FileResponse(BASIC_FLOWER_URL)
 
 
+# 사진 조회 및 다운로드
 @router.get("/photo/{photo_id}")
 async def get_photo(photo_id: int, db: Session = Depends(get_db)):
     find_photo: Photo = db.query(Photo).filter_by(photo_id=photo_id).first()
     if find_photo is None:
-        raise HTTPException(status_code=400, detail="사진 다운로드 실패 : 해당 사진을 찾을 수 없습니다.")
-    return FileResponse(find_photo.src)
-
-
-# 사진 다운로드
-@router.get("/download/photo/{photo_id}")
-async def download_photo(photo_id: int, db: Session = Depends(get_db)):
-    find_photo: Photo = db.query(Photo).filter_by(photo_id=photo_id).first()
-    if find_photo is None:
-        raise HTTPException(status_code=400, detail="사진 다운로드 실패 : 해당 사진을 찾을 수 없습니다.")
+        raise HTTPException(status_code=400, detail="사진 조회 실패 : 해당 사진을 찾을 수 없습니다.")
     return FileResponse(find_photo.src)
