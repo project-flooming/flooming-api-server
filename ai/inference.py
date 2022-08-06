@@ -111,7 +111,10 @@ def classify(image_src):
     return c_inference.classification(image_src)
 
 
-s_weight_path = './ai/weight/mosaic.pt'
+HAPPY_TEARS = './ai/weight/happy_tears.pt'
+MOSAIC = './ai/weight/mosaic.pt'
+
+s_weight_path = MOSAIC
 s_inference = Inference(s_weight=s_weight_path)
 
 
