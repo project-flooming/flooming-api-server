@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import cv2
 from PIL import Image
@@ -94,12 +96,26 @@ class Inference:
 
     @torch.no_grad()
     def style_convert(self, src):
+        start1 = time.time()
         file_name = src.split('/')[-1]
         inputs = Variable(self.transform(Image.open(src).convert('RGB')))
+        print(f"style_convert : Variable Image.open 시간 = {time.time() - start1}")
+
+        start = time.time()
         inputs = inputs.unsqueeze(0)
+        print(f"unsqueeze 시간 = {time.time() - start}")
+
+        start = time.time()
         output = denormalize(self.styletransfer_model(inputs))
+        print(f"denormalize 시간 = {time.time() - start}")
+
+        start = time.time()
         output = to_pil_image(output[0])
+        print(f"pillow to_pil_image 시간 = {time.time() - start}")
+
+        start2 = time.time()
         output.save(f'./picture/{file_name}')
+        print(f"style_convert :output.save 시간 = {time.time() - start2}")
         return output
 
 
@@ -114,9 +130,13 @@ def classify(image_src):
 HAPPY_TEARS = './ai/weight/happy_tears.pt'
 MOSAIC = './ai/weight/mosaic.pt'
 
+start = time.time()
 s_weight_path = MOSAIC
 s_inference = Inference(s_weight=s_weight_path)
-
+print(f"s_inference init 시간 = {time.time() - start}")
 
 async def drawing(image_src):
-    return s_inference.style_convert(image_src)
+    start = time.time()
+    result = s_inference.style_convert(image_src)
+    print(f"async def drawing 최종 처리시간 = {time.time() - start}")
+    return result

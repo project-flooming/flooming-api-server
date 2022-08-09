@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
@@ -19,7 +21,9 @@ async def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
         src = db.query(Photo).filter_by(photo_id=form.photo_id).first().src
 
         # 그림 변환
+        start = time.time()
         await drawing(src)
+        logger.info("drawing total time = {}", start - time.time())
 
         # 그림 디비 저장
         picture_save_path = "./picture/" + src.split('/')[-1]
