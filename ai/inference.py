@@ -24,7 +24,7 @@ def load_image_cv2(path):
 def load_image_pillow(path):
     img = Image.open(path).convert('RGB')
     img = img.resize((256,256))
-    img = torch.Tensor(np.array(img) / 255.).permute(2, 0, 1)
+    img = torch.from_numpy(np.array(img))
     return img.unsqueeze(dim=0)
     
 
