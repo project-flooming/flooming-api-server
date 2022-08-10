@@ -65,10 +65,11 @@ class Inference:
 
     @torch.no_grad()
     def classification(self, src):
-        inputs = Image.open(src).conver('RGB')
+        inputs = Image.open(src).convert('RGB')
         inputs = inputs.resize((256,256))
         inputs = torch.from_numpy(np.array(inputs))
         inputs = inputs.permute(2,0,1)
+        inputs = inputs.unsqueeze(dim=0)
         output = self.classification_model(inputs / 255.)
         prob_with_idx = torch.sort(F.softmax(output))
         result = []
@@ -87,7 +88,7 @@ class Inference:
     @torch.no_grad()
     def style_convert(self, src):
         file_name = src.split('/')[-1]
-        original_img = Image.open(src).conver('RGB')
+        original_img = Image.open(src).convert('RGB')
         original_size = original_img.size
         inputs = original_img.resize((512, 512))
         inputs = Variable(self.transform(inputs))
