@@ -132,7 +132,7 @@ class Inference:
         original_img = Image.open(src).convert('RGB')
         height, width = original_img.size
         original_size = original_img.size
-        inputs = original_img.resize((1024, 1024))  # 여기 사이즈 줄여주는 코드 넣음
+        inputs = original_img.resize((512, 512))  # 여기 사이즈 줄여주는 코드 넣음
         inputs = Variable(self.transform(inputs))
         inputs = inputs.unsqueeze(0)
         output = denormalize(self.styletransfer_model(inputs))
