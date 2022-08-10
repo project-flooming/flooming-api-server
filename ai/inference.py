@@ -65,7 +65,8 @@ class Inference:
 
     @torch.no_grad()
     def classification(self, src):
-        inputs = (Image.open(src)).resize((256,256))
+        inputs = Image.open(src).conver('RGB')
+        inputs = inputs.resize((256,256))
         inputs = torch.from_numpy(np.array(inputs))
         inputs = inputs.permute(2,0,1)
         output = self.classification_model(inputs / 255.)
