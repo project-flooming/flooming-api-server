@@ -21,12 +21,12 @@ def load_image_cv2(path):
     img = torch.Tensor(img / 255.).permute(2, 0, 1)
     return img.unsqueeze(dim=0)
 
+
 def load_image_pillow(path):
     img = Image.open(path).convert('RGB')
     img = img.resize((256,256))
     img = torch.from_numpy(np.array(img))
     return img.unsqueeze(dim=0)
-    
 
 
 class Inference:
@@ -84,7 +84,7 @@ class Inference:
 
     @torch.no_grad()
     def classification(self, src):
-        # inputs = load_image_cv2(src)  # cv2로 한거
+        inputs = load_image_cv2(src)  # cv2로 한거
         # inputs = load_image_pillow(src) # pillow로 한거
         # 위에 cv2랑 pillow 중에 뭐가 더 빠른지 함 테스트해보셈
         output = self.classification_model(inputs)
@@ -153,10 +153,10 @@ def classify(image_src):
 HAPPY_TEARS = './ai/weight/happy_tears.pt'
 MOSAIC = './ai/weight/mosaic.pt'
 
-start = time.time()
+
 s_weight_path = MOSAIC
 s_inference = Inference(s_weight=s_weight_path)
-print(f"s_inference init 시간 = {time.time() - start}")
+
 
 async def drawing(image_src):
     start = time.time()
