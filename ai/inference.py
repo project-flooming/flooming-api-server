@@ -125,19 +125,19 @@ class Inference:
     #     output.save(f'./picture/{file_name}')
     #     print(f"style_convert :output.save 시간 = {time.time() - start2}")
     #     return output
-    
 
     @torch.no_grad()
     def style_convert(self, src):
         file_name = src.split('/')[-1]
         original_img = Image.open(src).convert('RGB')
+        height, width = original_img.size
         original_size = original_img.size
-        inputs = original_img.resize((256,256)) # 여기 사이즈 줄여주는 코드 넣음
+        inputs = original_img.resize((1024, 1024))  # 여기 사이즈 줄여주는 코드 넣음
         inputs = Variable(self.transform(inputs))
         inputs = inputs.unsqueeze(0)
         output = denormalize(self.styletransfer_model(inputs))
         output = to_pil_image(output[0])
-        output = output.resize(original_size) # 여기가 upsampling하는 부분
+        output = output.resize(original_size)  # 여기가 upsampling하는 부분
         output.save(f'./picture/{file_name}')
         return output
 
@@ -154,7 +154,7 @@ HAPPY_TEARS = './ai/weight/happy_tears.pt'
 MOSAIC = './ai/weight/mosaic.pt'
 
 
-s_weight_path = MOSAIC
+s_weight_path = HAPPY_TEARS
 s_inference = Inference(s_weight=s_weight_path)
 
 
