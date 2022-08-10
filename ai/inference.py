@@ -14,13 +14,19 @@ from ai.models.styletransfer import TransformerNet
 from .util import denormalize, style_transform
 
 
-def load_image(path):
+def load_image_cv2(path):
     img = cv2.imread(path, cv2.IMREAD_COLOR)
-    original_size = img.shape
     img = cv2.resize(img, (256, 256))
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = torch.Tensor(img / 255.).permute(2, 0, 1)
-    return img.unsqueeze(dim=0), original_size
+    return img.unsqueeze(dim=0)
+
+def load_image_pillow(path):
+    img = Image.open(path).convert('RGB')
+    img = img.resize((256,256))
+    img = torch.Tensor(np.array(img) / 255.).permute(2, 0, 1)
+    return img.unsqueeze(dim=0)
+    
 
 
 class Inference:
@@ -78,7 +84,9 @@ class Inference:
 
     @torch.no_grad()
     def classification(self, src):
-        inputs, _ = load_image(src)
+        # inputs = load_image_cv2(src)  # cv2로 한거
+        # inputs = load_image_pillow(src) # pillow로 한거
+        # 위에 cv2랑 pillow 중에 뭐가 더 빠른지 함 테스트해보셈
         output = self.classification_model(inputs)
         prob_with_idx = torch.sort(F.softmax(output))
         result = []
@@ -94,28 +102,43 @@ class Inference:
             result.append(output)
         return result
 
+    # @torch.no_grad()
+    # def style_convert(self, src):
+    #     start1 = time.time()
+    #     file_name = src.split('/')[-1]
+    #     inputs = Variable(self.transform(Image.open(src).convert('RGB')))
+    #     print(f"style_convert : Variable Image.open 시간 = {time.time() - start1}")
+
+    #     start = time.time()
+    #     inputs = inputs.unsqueeze(0)
+    #     print(f"unsqueeze 시간 = {time.time() - start}")
+
+    #     start = time.time()
+    #     output = denormalize(self.styletransfer_model(inputs))
+    #     print(f"denormalize 시간 = {time.time() - start}")
+
+    #     start = time.time()
+    #     output = to_pil_image(output[0])
+    #     print(f"pillow to_pil_image 시간 = {time.time() - start}")
+
+    #     start2 = time.time()
+    #     output.save(f'./picture/{file_name}')
+    #     print(f"style_convert :output.save 시간 = {time.time() - start2}")
+    #     return output
+    
+
     @torch.no_grad()
     def style_convert(self, src):
-        start1 = time.time()
         file_name = src.split('/')[-1]
-        inputs = Variable(self.transform(Image.open(src).convert('RGB')))
-        print(f"style_convert : Variable Image.open 시간 = {time.time() - start1}")
-
-        start = time.time()
+        original_img = Image.open(src).convert('RGB')
+        original_size = original_img.size
+        inputs = original_img.resize((256,256)) # 여기 사이즈 줄여주는 코드 넣음
+        inputs = Variable(self.transform(inputs))
         inputs = inputs.unsqueeze(0)
-        print(f"unsqueeze 시간 = {time.time() - start}")
-
-        start = time.time()
         output = denormalize(self.styletransfer_model(inputs))
-        print(f"denormalize 시간 = {time.time() - start}")
-
-        start = time.time()
         output = to_pil_image(output[0])
-        print(f"pillow to_pil_image 시간 = {time.time() - start}")
-
-        start2 = time.time()
+        output = output.resize(original_size) # 여기가 upsampling하는 부분
         output.save(f'./picture/{file_name}')
-        print(f"style_convert :output.save 시간 = {time.time() - start2}")
         return output
 
 
