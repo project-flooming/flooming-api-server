@@ -3,21 +3,24 @@ from PIL import Image
 
 import torch
 import torch.nn.functional as F
+from fastapi import HTTPException
+from loguru import logger
 from torch.autograd import Variable
 from torchvision.transforms.functional import to_pil_image
 
-from ai.models.shufflenetv2 import ShuffleNetV2
-from ai.models.styletransfer import TransformerNet
+from deep_learning.models.shufflenetv2 import ShuffleNetV2
+from deep_learning.models.styletransfer import TransformerNet
 from .util import denormalize, style_transform
 
-class Inference:
 
+class Inference:
     def __init__(
             self,
             c_weight=None,
             s_weight=None,
             num_classes=28
     ):
+        print("inference 생성")
 
         # Classification Phase
         if c_weight is not None:
@@ -71,7 +74,7 @@ class Inference:
         inputs = inputs.permute(2,0,1)
         inputs = inputs.unsqueeze(dim=0)
         output = self.classification_model(inputs / 255.)
-        prob_with_idx = torch.sort(F.softmax(output))
+        prob_with_idx = torch.sort(F.softmax(output, dim=1))
         result = []
         total = prob_with_idx[0][0][-3:].sum().item()
         for i in range(1, 4):
@@ -96,12 +99,11 @@ class Inference:
         output = denormalize(self.styletransfer_model(inputs))
         output = to_pil_image(output[0])
         output = output.resize(original_size)
-        output.save(f'./picture/{file_name}')
+        output.save(f'./image/picture/{file_name}')
         return output
 
 
-
-c_weight_path = './ai/weight/shufflenetv2_weight.pt'
+c_weight_path = './deep_learning/weight/shufflenetv2_weight.pt'
 c_inference = Inference(c_weight=c_weight_path)
 
 
@@ -109,9 +111,13 @@ def classify(image_src):
     return c_inference.classification(image_src)
 
 
-s_weight_path = './ai/weight/happy_tears.pt'
+s_weight_path = './deep_learning/weight/happy_tears.pt'
 s_inference = Inference(s_weight=s_weight_path)
 
 
 async def drawing(image_src):
-    return s_inference.style_convert(image_src)
+    try:
+        return s_inference.style_convert(image_src)
+    except Exception as e:
+        logger.warning(f"Drawing error : {str(e)}")
+        raise HTTPException(status_code=400, detail="그림을 그릴 수 없어요 !")

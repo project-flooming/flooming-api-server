@@ -13,19 +13,19 @@ from loguru import logger
 from database.config import SessionLocal, engine, Base
 from database.models import Flower
 from database.flowers import flower_list
-from routers import photos, pictures
+from api import photo, picture
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(photos.router)
-app.include_router(pictures.router)
+app.include_router(photo.router)
+app.include_router(picture.router)
 
 
 # 분류용 꽃 세팅
 @app.on_event("startup")
-async def init():
+def init():
     db: Session = SessionLocal()
     for flower in flower_list:
         if db.query(Flower).filter_by(kor_name=flower.kor_name).first() is None:
@@ -54,7 +54,7 @@ async def request_middleware(request: Request, call_next):
 
 
 @app.get("/")
-async def welcome_page():
+def welcome_page():
     return "Hello! this is a Flooming REST API Server."
 
 
