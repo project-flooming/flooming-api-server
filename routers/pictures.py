@@ -16,12 +16,12 @@ router = APIRouter()
 
 # 사용자가 선택한 타입으로 사전 업데이트 및 사진 -> 그림 변환
 @router.post("/picture")
-async def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
+def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
     try:
         src = db.query(Photo).filter_by(photo_id=form.photo_id).first().src
 
         # 그림 변환
-        await drawing(src)
+        drawing(src)
 
         # 그림 디비 저장
         picture_save_path = "./picture/" + src.split('/')[-1]
@@ -39,7 +39,7 @@ async def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="그림을 그릴 수 없어요 !")
 
 
-async def paging(db, page):
+def paging(db, page):
     unit_per_page = 5
     offset = page * unit_per_page
     result_from_db = db.query(Gallery).order_by(desc(Gallery.created_time)).offset(offset).limit(unit_per_page).all()
@@ -51,20 +51,20 @@ async def paging(db, page):
 
 # 갤러리 - 사진/그림 업로드
 @router.post("/gallery")
-async def create_gallery(form: GalleryDto, db: Session = Depends(get_db)):
+def create_gallery(form: GalleryDto, db: Session = Depends(get_db)):
     db.add(Gallery(photo_id=form.photo_id, picture_id=form.picture_id, comment=form.comment))
     db.commit()
-    return {"result": await paging(db, page=0)}
+    return {"result": paging(db, page=0)}
 
 
 # 갤러리 - 사진/그림 리스트 반환
 @router.get("/gallery")
-async def get_all_gallery(page: int, db: Session = Depends(get_db)):
-    return {"result": await paging(db, page)}
+def get_all_gallery(page: int, db: Session = Depends(get_db)):
+    return {"result": paging(db, page)}
 
 
 @router.get("/picture/{picture_id}")
-async def get_picture(picture_id: int, db: Session = Depends(get_db)):
+def get_picture(picture_id: int, db: Session = Depends(get_db)):
     find_picture: Picture = db.query(Picture).filter_by(picture_id=picture_id).first()
     if find_picture is None:
         raise HTTPException(status_code=400, detail="그림 조회 실패 : 해당 사진을 찾을 수 없습니다.")
