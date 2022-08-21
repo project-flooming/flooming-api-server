@@ -12,7 +12,7 @@ def validate(classify_result, src):
     if max_prob >= 90:
         return classify_result[0]
     elif max_prob <= 50:
-        delete_photo(src)
+        delete_image(src)
         raise HTTPException(status_code=400, detail="알아볼 수 없는 사진이에요!")
     return classify_result[0]
 
@@ -32,5 +32,5 @@ def upload(file):
         raise HTTPException(status_code=500, detail="서버에 문제가 생긴 것 같아요!")
 
 
-def delete_photo(src):
+def delete_image(src):
     os.remove(src)

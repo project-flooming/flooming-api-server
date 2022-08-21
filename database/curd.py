@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
@@ -12,16 +13,12 @@ def save(db: Session, entity):
     return entity
 
 
-def find_photo(db: Session, entity_id: int) -> Photo:
-    return db.query(Photo).get(entity_id)
+def find(db: Session, entity, entity_id: int):
+    return db.query(entity).get(entity_id)
 
 
-def find_picture(db: Session, entity_id: int) -> Picture:
-    return db.query(Picture).get(entity_id)
-
-
-def find_gallery(db: Session, entity_id: int) -> Gallery:
-    return db.query(Gallery).get(entity_id)
+def delete(db: Session, entity):
+    db.delete(entity)
 
 
 def get_represent_flower(db: Session, kor_name: str) -> Flower:
