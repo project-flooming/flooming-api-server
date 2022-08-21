@@ -14,14 +14,14 @@ router = APIRouter()
 # 사용자가 선택한 타입으로 사전 업데이트 및 사진 -> 그림 변환
 @router.post("/picture")
 def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
-    img_src = find_photo(db, form.photo_id).src
+    img_src = find_photo(db, form.photo_id).saved_path
 
     # 그림 변환
     drawing(img_src)
 
     # 그림 디비 저장
     picture_save_path = "./picture/" + img_src.split('/')[-1]
-    saved_picture = save(db, Picture(src=picture_save_path, photo_id=form.photo_id))
+    saved_picture = save(db, Picture(saved_path=picture_save_path, photo_id=form.photo_id))
 
     return {
         "photo_id": form.photo_id,

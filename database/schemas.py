@@ -9,3 +9,8 @@ class GalleryDto(BaseModel):
 
 class PictureRequest(BaseModel):
     photo_id: int
+
+
+class ReportForm(BaseModel):
+    gallery_id: int
+    detail: str

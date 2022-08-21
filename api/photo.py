@@ -31,7 +31,7 @@ def upload_photo(file: UploadFile, db: Session = Depends(get_db)):
     # 디비에 저장
     flower: Flower = get_represent_flower(db, classify_result[0]["type"])
 
-    saved_photo = save(db, Photo(filename=filename, src=src, type=flower.kor_name))
+    saved_photo = save(db, Photo(filename=filename, saved_path=src, flower_type=flower.kor_name))
 
     return {
         "photo_id": saved_photo.photo_id,

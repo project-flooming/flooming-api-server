@@ -115,7 +115,7 @@ s_weight_path = './deep_learning/weight/happy_tears.pt'
 s_inference = Inference(s_weight=s_weight_path)
 
 
-async def drawing(image_src):
+def drawing(image_src):
     try:
         return s_inference.style_convert(image_src)
     except Exception as e:

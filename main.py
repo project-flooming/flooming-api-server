@@ -13,7 +13,7 @@ from loguru import logger
 from database.config import SessionLocal, engine, Base
 from database.models import Flower
 from database.flowers import flower_list
-from api import photo, picture
+from api import photo, picture, admin
 
 Base.metadata.create_all(bind=engine)
 
@@ -21,6 +21,7 @@ app = FastAPI()
 
 app.include_router(photo.router)
 app.include_router(picture.router)
+app.include_router(admin.router)
 
 
 # 분류용 꽃 세팅
