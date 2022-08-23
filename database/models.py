@@ -1,6 +1,8 @@
 from datetime import datetime
-from sqlalchemy import DateTime, BigInteger, Boolean
+from sqlalchemy import DateTime, BigInteger, Boolean, ForeignKey
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+
 from database.config import Base
 
 
@@ -22,6 +24,8 @@ class Photo(Base):
     saved_path = Column(String(255), default="unknown")  # 이미지 저장 경로
     created_time = Column(DateTime, default=datetime.now)
 
+    gallery = relationship("Gallery", back_populates="photo", uselist=False)
+
 
 class Picture(Base):
     __tablename__ = "picture"
@@ -31,22 +35,33 @@ class Picture(Base):
     saved_path = Column(String(255), default="unknown")  # 그려진 그림 저장 경로
     created_time = Column(DateTime, default=datetime.now)
 
+    gallery = relationship("Gallery", back_populates="picture", uselist=False)
+
 
 class Gallery(Base):
     __tablename__ = "gallery"
 
     gallery_id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
-    photo_id = Column(BigInteger, default=0)
-    picture_id = Column(BigInteger, default=0)
+
+    photo_id = Column(BigInteger, ForeignKey("photo.photo_id"))
+    photo = relationship("Photo", back_populates="gallery", cascade="all")
+
+    picture_id = Column(BigInteger, ForeignKey("picture.picture_id"))
+    picture = relationship("Picture", back_populates="gallery", cascade="all")
+
     comment = Column(String(255), default="unknown")
     is_reported = Column(Boolean, default=False)
     created_time = Column(DateTime, default=datetime.now)
 
+    report = relationship("Report", back_populates="gallery", uselist=False)
+
 
 class Report(Base):
     __tablename__ = "report"
-
     report_id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
-    gallery_id = Column(BigInteger)
+
     detail = Column(String(255), default="unknown")
     created_time = Column(DateTime, default=datetime.now)
+
+    gallery_id = Column(BigInteger, ForeignKey("gallery.gallery_id"))
+    gallery = relationship("Gallery", back_populates="report")

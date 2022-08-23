@@ -19,6 +19,7 @@ def find(db: Session, entity, entity_id: int):
 
 def delete(db: Session, entity):
     db.delete(entity)
+    db.commit()
 
 
 def get_represent_flower(db: Session, kor_name: str) -> Flower:
