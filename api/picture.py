@@ -6,7 +6,7 @@ from deep_learning.inference import drawing
 from database.config import get_db
 from database.curd import save, paging, find
 from database.models import Picture, Gallery, Photo
-from database.schemas import GalleryDto, PictureRequest
+from database.schemas import GalleryResponse, PictureRequest, GalleryRequest
 
 router = APIRouter()
 
@@ -31,7 +31,7 @@ def create_picture(form: PictureRequest, db: Session = Depends(get_db)):
 
 # 갤러리 - 사진/그림 업로드
 @router.post("/gallery")
-def create_gallery(form: GalleryDto, db: Session = Depends(get_db)):
+def create_gallery(form: GalleryRequest, db: Session = Depends(get_db)):
     save(db, Gallery(photo_id=form.photo_id, picture_id=form.picture_id, comment=form.comment))
     return {"result": paging(db)}
 
