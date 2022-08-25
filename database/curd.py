@@ -1,3 +1,4 @@
+
 from loguru import logger
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
@@ -17,6 +18,10 @@ def save(db: Session, entity):
 
 def find(db: Session, entity, entity_id: int):
     return db.query(entity).get(entity_id)
+
+
+def find_all(db: Session, entity) -> list:
+    return db.query(entity).all()
 
 
 def delete(db: Session, entity):

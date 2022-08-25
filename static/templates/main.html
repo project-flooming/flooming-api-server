@@ -5,48 +5,56 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-  <link rel='stylesheet' href='style.css'>
-  <link href='../assets/favicon.png' rel='shortcut icon' type='image/x-icon'>
-  <title>flooming 관리자 페이지</title>
+  <link rel='stylesheet' href="{{ url_for('static', path='/templates/style.css') }}">
+  <link href="{{ url_for('static', path='/assets/favicon.png') }}" rel='shortcut icon' type='image/x-icon'>
+  <script src="https://kit.fontawesome.com/1476e507ad.js" crossorigin="anonymous"></script>
+  <title>Flooming 관리자 페이지</title>
 </head>
 
 <body class="mainBody">
   <!-- header -->
   <section class="logoContainer">
-    <img class="logoIcon" src=" ../icon.png" alt="icon">
+    <img class="logoIcon" src="{{ url_for('static', path='/assets/icon.png') }}" alt="icon">
     Flooming Reports
   </section>
+  {% if not reports %}
+  <div style="text-align: center; font-size: 30px">접수된 신고가 없습니다!</div>
+  {% endif %}
 
   <!-- contents -->
   <main class="contents">
+    {% for r in reports %}
     <section class="contentContainer">
       <section class="contentHeader">
-        <div>
-          <span class="id"># 1</span>
-          <span class="galleryId">Gallery ID : 갤러리아이디</span>
+        <div class="idContainer">
+          <span class="reportId"># {{r.report_id}}</span>
+          <span class="galleryId">Gallery ID : {{r.gallery_id}}</span>
         </div>
-        <div>
-          <button class="returnButton">추가</button>
-          <button class="deleteButton">삭제</button>
+        <div class="reportButtonContainer">
+          <form>
+            <button class="reportButton"><i class="fa-regular fa-images"></i></button>
+          </form>
+          <form>
+            <button class="reportButton"><i class="fa-solid fa-trash-can"></i></button>
+          </form>
         </div>
       </section>
 
       <section class="contentImageContainer">
-        <img class="image" src="../mainPhoto.jpg" alt="photo" />
-        <img class="image" src="../illustrationimageEx.jpg" alt="picture" />
+        <img class="image" src="http://flooming.link/photo/{{r.photo_id}}" alt="photo" />
+        <img class="image" src="http://flooming.link/picture/{{r.picture_id}}" alt="picture" />
       </section>
 
       <section class="contentTextContainer">
-        <span class="comment">코멘트</span>
-        <span class="reason">사유 : 신고사유</span>
+        <span class="text">{{r.comment}}</span>
+        <span class="text reson">사유 : {{r.reason}}</span>
       </section>
 
       <section class="contentDateContainer">
-        <span class="reportDate">날짜</span>
+        <span class="reportDate">{{r.created_time}}</span>
       </section>
     </section>
+    {% endfor %}
   </main>
 </body>
 

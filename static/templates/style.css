@@ -3,18 +3,23 @@
   src: url("../fonts/SimKyungha.ttf");
 }
 
+body {
+  margin: 0;
+}
+
 * {
   font-family: 'simKyungha';
 }
 
-/* 로그인 페이지 */
-.loginBody {
-  background-color: #C7B4D6;
+button {
+  cursor: pointer;
 }
 
+/* 로그인 페이지 */
 .loginContainer {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  background-color: #C7B4D6;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,6 +38,9 @@
 }
 
 .container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 35px;
 }
 
@@ -89,29 +97,32 @@
 .contents {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .contentContainer {
   background-color: #FCFCFC;
   text-align: center;
   border-radius: 20px;
-  padding: 20px;
+  padding: 30px;
   width: 30%;
+  margin: 10px;
 }
 
 .contentHeader {
   display: flex;
   justify-content: space-between;
-  padding-bottom: 20px;
+  padding-bottom: 22px;
 }
 
-.id {
+.reportId {
   background-color: #FAD3DA;
-  padding: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
   border-radius: 25px;
-  font-size: 20px;
+  font-size: 25px;
+  width: max-content;
 }
 
 .galleryId {
@@ -120,22 +131,108 @@
   color: #645B5B;
 }
 
-.contentImageContainer {
+.reportButtonContainer {
   display: flex;
-  justify-content: space-around;
   align-items: center;
 }
 
+.reportButton {
+  border: none;
+  background-color: unset;
+}
+
+.fa-images,
+.fa-trash-can {
+  font-size: x-large;
+}
+
+.fa-images {
+  color: #8A7EBE;
+}
+
+.fa-trash-can {
+  color: #D16D6A;
+}
+
+.contentImageContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .image {
-  width: 45%;
+  width: 48%;
   border-radius: 15px;
 }
 
 .contentTextContainer {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+}
+
+.text {
+  font-size: 25px;
+  text-align: start;
+  width: 95%;
+  padding: 10px;
+}
+
+.reson {
+  background-color: #F6E8E8;
+  border-radius: 10px;
+}
+
+.contentDateContainer {
+  padding: 10px;
+  padding-bottom: 0;
+  text-align: end;
+}
+
+.reportDate {
+  color: #645B5B;
+  font-size: 18px;
+}
+
+@media screen and (max-width: 1500px) {
+  .reportId {
+    font-size: 20px;
+  }
+
+  .text {
+    font-size: 22px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .contentContainer {
+    padding: 25px;
+    width: 35%;
+  }
+
+  .reportId {
+    font-size: 18px;
+  }
+
+  .galleryId {
+    font-size: 16px;
+    margin-left: 10px;
+  }
+
+  .fa-images,
+  .fa-trash-can {
+    font-size: large;
+  }
+
+  .contentImageContainer {
+    margin-bottom: 0;
+  }
+
+  .text {
+    font-size: 20px;
+  }
 }
 
 @media screen and (max-width: 1024px) {
@@ -151,9 +248,31 @@
   .loginButton {
     font-size: 20px;
   }
+
+  .contentHeader {
+    padding-bottom: 15px;
+  }
+
+  .reportId {
+    font-size: 15px;
+  }
+
+  .galleryId {
+    font-size: 13px;
+    margin-left: 8px;
+  }
+
+  .fa-images,
+  .fa-trash-can {
+    font-size: medium;
+  }
+
+  .text {
+    font-size: 15px;
+  }
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 900px) {
   .loginBackground {
     width: 330px;
     height: 200px;
@@ -173,6 +292,68 @@
     padding: 5px;
     padding-left: 12px;
     padding-right: 12px;
+  }
+
+  .logoContainer {
+    font-size: 40px;
+  }
+
+  .logoIcon {
+    width: 60px;
+  }
+
+  .contentContainer {
+    padding: 20px;
+    width: 40%;
+  }
+
+  .reportButtonContainer {
+    align-items: flex-end;
+  }
+
+  .reportDate {
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width:700px) {
+  .logoContainer {
+    font-size: 35px;
+  }
+
+  .logoIcon {
+    width: 50px;
+  }
+
+  .contentContainer {
+    width: 90%;
+    padding: 25px;
+  }
+
+  .contentHeader {
+    padding-bottom: 20px;
+  }
+
+  .reportId {
+    font-size: 20px;
+  }
+
+  .galleryId {
+    font-size: 18px;
+    margin-left: 10px;
+  }
+
+  .fa-images,
+  .fa-trash-can {
+    font-size: x-large;
+  }
+
+  .text {
+    font-size: 20px;
+  }
+
+  .reportDate {
+    font-size: 20px;
   }
 }
 
@@ -198,9 +379,49 @@
     padding-left: 12px;
     padding-right: 12px;
   }
+
+  .logoContainer {
+    font-size: 25px;
+  }
+
+  .logoIcon {
+    width: 40px;
+  }
+
+  .contentContainer {
+    padding: 15px;
+  }
+
+  .contentHeader {
+    padding-bottom: 15px;
+  }
+
+  .idContainer {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .reportId {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .fa-images,
+  .fa-trash-can {
+    font-size: large;
+  }
+
+  .text {
+    font-size: 18px;
+    padding: 5px;
+  }
+
+  .reportDate {
+    font-size: 16px;
+  }
 }
 
-@media screen and (max-width: 270px) {
+@media screen and (max-width: 290px) {
   .loginBackground {
     width: 200px;
     height: 130px;
@@ -221,5 +442,35 @@
     padding: 3px;
     padding-left: 10px;
     padding-right: 10px;
+  }
+
+  .logoContainer {
+    font-size: 20px;
+  }
+
+  .logoIcon {
+    width: 30px;
+    margin-right: 10px;
+  }
+
+  .reportId {
+    font-size: 15px;
+  }
+
+  .galleryId {
+    font-size: 15px;
+  }
+
+  .fa-images,
+  .fa-trash-can {
+    font-size: medium;
+  }
+
+  .text {
+    font-size: 15px;
+  }
+
+  .reportDate {
+    font-size: 13px;
   }
 }

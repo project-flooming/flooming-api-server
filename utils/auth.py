@@ -1,5 +1,4 @@
 import datetime
-import json
 
 import jwt
 from fastapi import HTTPException
@@ -11,7 +10,7 @@ SECRET_KEY = secrets["jwt_key"]
 
 
 def login_check(request: Request):
-    token = request.headers.get('token')
+    token = request.cookies.get('token')
     if token is None:
         raise HTTPException(status_code=401, detail="로그인을 먼저 해주세요")
     validate_token(token)
