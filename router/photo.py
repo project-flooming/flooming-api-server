@@ -10,7 +10,7 @@ from database.models import Photo, Flower
 from loguru import logger
 
 from database.curd import get_represent_flower, save, find
-from service.photo import upload, validate
+from utils.photo import upload, validate
 
 router = APIRouter()
 

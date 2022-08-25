@@ -8,12 +8,12 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from loguru import logger
-
+from fastapi.staticfiles import StaticFiles
 
 from database.config import SessionLocal, engine, Base
-from database.models import Flower
-from database.flowers import flower_list
-from api import photo, picture, admin
+from database.curd import set_represent_flowers, set_admin
+from router import photo, picture, admin
+from utils.config import secrets
 
 Base.metadata.create_all(bind=engine)
 
@@ -23,17 +23,15 @@ app.include_router(photo.router)
 app.include_router(picture.router)
 app.include_router(admin.router)
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # 분류용 꽃 세팅
 @app.on_event("startup")
 def init():
     db: Session = SessionLocal()
-    for flower in flower_list:
-        if db.query(Flower).filter_by(kor_name=flower.kor_name).first() is None:
-            db.add(flower)
-            logger.info("분류용 꽃 데이터 세팅 = {}", flower.kor_name)
-    db.commit()
-    db.close()
+    set_represent_flowers(db)
+    set_admin(db, secrets["admin_password"])
 
 
 # 미들웨어를 통한 통합 로깅 및 예외처리

@@ -1,12 +1,8 @@
 import datetime
-import json
-
 import requests
 
-from database.config import SECRET_FILE
 from database.models import Report
-
-secrets = json.loads(open(SECRET_FILE).read())
+from utils.config import secrets
 
 
 def send_slack_alarm(new_report: Report):
