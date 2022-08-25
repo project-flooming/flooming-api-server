@@ -31,11 +31,15 @@
           <span class="galleryId">Gallery ID : {{r.gallery_id}}</span>
         </div>
         <div class="reportButtonContainer">
-          <form>
-            <button class="reportButton"><i class="fa-regular fa-images"></i></button>
+          <form action="/re-upload/{{r.report_id}}" method="POST">
+            <button class="reportButton" onclick="return confirm('해당 신고를 취소하고 재업로드 하시겠습니까?')">
+              <i class="fa-regular fa-images"></i>
+            </button>
           </form>
-          <form>
-            <button class="reportButton"><i class="fa-solid fa-trash-can"></i></button>
+          <form action="/delete/report/{{r.report_id}}" method="POST">
+            <button class="reportButton" onclick="return confirm('해당 갤러리를 삭제 하시겠습니까?')">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </form>
         </div>
       </section>
@@ -47,7 +51,7 @@
 
       <section class="contentTextContainer">
         <span class="text">{{r.comment}}</span>
-        <span class="text reson">사유 : {{r.reason}}</span>
+        <span class="text reason">사유 : {{r.reason}}</span>
       </section>
 
       <section class="contentDateContainer">

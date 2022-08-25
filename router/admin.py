@@ -96,8 +96,8 @@ def get_all_reports(request: Request, db: Session = Depends(get_db)):
 def delete_gallery(request: Request, report_id: int, db: Session = Depends(get_db)):
     login_check(request)
 
-    find_report = find(db, Report, report_id)
-    gallery = find(db, Gallery, find_report.gallery_id)
+    find_report: Report = find(db, Report, report_id)
+    gallery = find_report.gallery
 
     delete_image(gallery.photo.saved_path)
     delete_image(gallery.picture.saved_path)
