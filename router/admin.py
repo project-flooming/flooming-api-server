@@ -107,3 +107,8 @@ def delete_gallery(request: Request, report_id: int, db: Session = Depends(get_d
 
     return RedirectResponse(url="/reports")
 
+
+# 개인 정보 정책
+@router.get("/policy")
+def policy(request: Request):
+    return templates.TemplateResponse("policy.html", {"request": request})
