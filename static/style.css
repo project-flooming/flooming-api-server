@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'simKyungha';
-  src: url("../fonts/SimKyungha.ttf");
+  src: url("./static/SimKyungha.ttf");
 }
 
 body {
