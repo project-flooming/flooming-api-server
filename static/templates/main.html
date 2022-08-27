@@ -2,12 +2,13 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{{ url_for('static', path='/assets/favicon.png') }}" rel='shortcut icon' type='image/x-icon'>
-  <script src="https://kit.fontawesome.com/1476e507ad.js" crossorigin="anonymous"></script>
-  <style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ url_for('static', path='favicon.png') }}" rel='shortcut icon' type='image/x-icon'>
+    <!--  <link href="{{ url_for('static', path='style.css') }}" rel="stylesheet">-->
+    <script src="https://kit.fontawesome.com/1476e507ad.js" crossorigin="anonymous"></script>
+    <style>
     body {
   margin: 0;
 }
@@ -123,7 +124,7 @@ button {
   padding: 10px;
 }
 
-.reson {
+.reason {
   background-color: #F6E8E8;
   border-radius: 10px;
 }
@@ -306,59 +307,60 @@ button {
     font-size: 13px;
   }
 }
-  </style>
-  <title>Flooming 관리자 페이지</title>
+
+    </style>
+    <title>Flooming 관리자 페이지</title>
 </head>
 
 <body class="mainBody">
-  <!-- header -->
-  <section class="logoContainer">
-    <img class="logoIcon" src="{{ url_for('static', path='/assets/icon.png') }}" alt="icon">
+<!-- header -->
+<section class="logoContainer">
+<!--    <img class="logoIcon" src="{{ url_for('static', path='icon.png') }}" alt="icon">-->
     Flooming Reports
-  </section>
-  {% if not reports %}
-  <div style="text-align: center; font-size: 30px">접수된 신고가 없습니다!</div>
-  {% endif %}
+</section>
+{% if not reports %}
+<div style="text-align: center; font-size: 30px">접수된 신고가 없습니다!</div>
+{% endif %}
 
-  <!-- contents -->
-  <main class="contents">
+<!-- contents -->
+<main class="contents">
     {% for r in reports %}
     <section class="contentContainer">
-      <section class="contentHeader">
-        <div class="idContainer">
-          <span class="reportId"># {{r.report_id}}</span>
-          <span class="galleryId">Gallery ID : {{r.gallery_id}}</span>
-        </div>
-        <div class="reportButtonContainer">
-          <form action="/re-upload/{{r.report_id}}" method="POST">
-            <button class="reportButton" onclick="return confirm('해당 신고를 취소하고 재업로드 하시겠습니까?')">
-              <i class="fa-regular fa-images"></i>
-            </button>
-          </form>
-          <form action="/delete/report/{{r.report_id}}" method="POST">
-            <button class="reportButton" onclick="return confirm('해당 갤러리를 삭제 하시겠습니까?')">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </form>
-        </div>
-      </section>
+        <section class="contentHeader">
+            <div class="idContainer">
+                <span class="reportId"># {{r.report_id}}</span>
+                <span class="galleryId">Gallery ID : {{r.gallery_id}}</span>
+            </div>
+            <div class="reportButtonContainer">
+                <form action="/re-upload/{{r.report_id}}" method="POST">
+                    <button class="reportButton" onclick="return confirm('해당 신고를 취소하고 재업로드 하시겠습니까?')">
+                        <i class="fa-regular fa-images"></i>
+                    </button>
+                </form>
+                <form action="/delete/report/{{r.report_id}}" method="POST">
+                    <button class="reportButton" onclick="return confirm('해당 갤러리를 삭제 하시겠습니까?')">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
 
-      <section class="contentImageContainer">
-        <img class="image" src="http://flooming.link/photo/{{r.photo_id}}" alt="photo" />
-        <img class="image" src="http://flooming.link/picture/{{r.picture_id}}" alt="picture" />
-      </section>
+        <section class="contentImageContainer">
+            <img class="image" src="http://flooming.link/photo/{{r.photo_id}}" alt="photo"/>
+            <img class="image" src="http://flooming.link/picture/{{r.picture_id}}" alt="picture"/>
+        </section>
 
-      <section class="contentTextContainer">
-        <span class="text">{{r.comment}}</span>
-        <span class="text reason">사유 : {{r.reason}}</span>
-      </section>
+        <section class="contentTextContainer">
+            <span class="text">{{r.comment}}</span>
+            <span class="text reason">사유 : {{r.reason}}</span>
+        </section>
 
-      <section class="contentDateContainer">
-        <span class="reportDate">{{r.created_time}}</span>
-      </section>
+        <section class="contentDateContainer">
+            <span class="reportDate">{{r.created_time}}</span>
+        </section>
     </section>
     {% endfor %}
-  </main>
+</main>
 </body>
 
 </html>
