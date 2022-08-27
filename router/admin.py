@@ -1,17 +1,15 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.params import Form
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from starlette.responses import HTMLResponse, Response, RedirectResponse
+from starlette.responses import RedirectResponse
 
 from database.config import get_db
 from database.curd import save, find, delete, get_admin, find_all
 from database.models import Report, Gallery
-from database.schemas import ReportForm, LoginForm
+from database.schemas import ReportForm
 from utils.auth import create_token, login_check
 from utils.photo import delete_image
 from utils.alarm import send_slack_alarm

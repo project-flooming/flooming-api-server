@@ -6,7 +6,7 @@ from deep_learning.inference import drawing
 from database.config import get_db
 from database.curd import save, paging, find
 from database.models import Picture, Gallery, Photo
-from database.schemas import GalleryResponse, PictureRequest, GalleryRequest
+from database.schemas import PictureRequest, GalleryRequest
 
 router = APIRouter()
 

@@ -22,6 +22,3 @@ class ReportForm(BaseModel):
     gallery_id: int
     detail: str
 
-
-class LoginForm(BaseModel):
-    password: str

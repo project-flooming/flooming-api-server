@@ -11,7 +11,7 @@ def validate(classify_result, src):
     max_prob = max(prob_list)
     if max_prob >= 90:
         return classify_result[0]
-    elif max_prob <= 50:
+    elif max_prob <= 70:
         delete_image(src)
         raise HTTPException(status_code=400, detail="알아볼 수 없는 사진이에요!")
     return classify_result[0]
