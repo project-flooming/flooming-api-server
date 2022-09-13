@@ -48,10 +48,10 @@ def login(
 
 # 사용자 - 갤러리 신고
 @router.post("/report")
-def report(form: ReportForm, db: Session = Depends(get_db)):
+def report(form: ReportForm, request: Request, db: Session = Depends(get_db)):
     find(db, entity=Gallery, entity_id=form.gallery_id).is_reported = True
     new_report = save(db, Report(gallery_id=form.gallery_id, detail=form.detail))
-    send_slack_alarm(new_report)
+    send_slack_alarm(new_report, request.client.host)
     return {"result": "success"}
 
 
